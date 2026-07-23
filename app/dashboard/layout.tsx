@@ -8,7 +8,7 @@ import { Providers } from "../providers";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "My Next.js App",
+  title: "AgroSentry | DashBoard",
   description: "Built with Next.js App Router",
 };
 
