@@ -5,6 +5,7 @@ import DJIAgrasCard from "@/components/Landing/DJIAgrasCard";
 import ProductCard from "@/components/Landing/ProductCard";
 import BirdCard from "@/components/Landing/BirdCard";
 import DroneSection from "@/components/Landing/DroneSection";
+import WhyAgrone from "@/components/Landing/WhyAgrone";
 
 export default function Home() {
   return (
@@ -46,6 +47,9 @@ export default function Home() {
       </section>
       <section className="mt-5">
         <DroneSection />
+      </section>
+      <section className="mt-5 w-full bg-red-500">
+        <WhyAgrone />
       </section>
     </div>
   );
