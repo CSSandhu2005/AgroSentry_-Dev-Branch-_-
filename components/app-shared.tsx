@@ -20,7 +20,7 @@ export const navGroups: SidebarNavGroup[] = [
 		items: [
 			{
 				title: "Dashboard",
-				path: "#/overview",
+				path: "/overview",
 				icon: (
 					<LayoutDashboardIcon
 					/>
@@ -29,7 +29,7 @@ export const navGroups: SidebarNavGroup[] = [
 			},
 			{
 				title: "Events",
-				path: "#/events",
+				path: "/events",
 				icon: (
 					<MousePointerClickIcon
 					/>
@@ -37,7 +37,7 @@ export const navGroups: SidebarNavGroup[] = [
 			},
 			{
 				title: "Funnels",
-				path: "#/funnels",
+				path: "/funnels",
 				icon: (
 					<FunnelIcon
 					/>
@@ -45,7 +45,7 @@ export const navGroups: SidebarNavGroup[] = [
 			},
 			{
 				title: "Retention",
-				path: "#/retention",
+				path: "/retention",
 				icon: (
 					<RepeatIcon
 					/>
@@ -53,7 +53,7 @@ export const navGroups: SidebarNavGroup[] = [
 			},
 			{
 				title: "Flows",
-				path: "#/flows",
+				path: "/flows",
 				icon: (
 					<GitBranchIcon
 					/>
@@ -66,7 +66,7 @@ export const navGroups: SidebarNavGroup[] = [
 		items: [
 			{
 				title: "Segments",
-				path: "#/segments",
+				path: "/segments",
 				icon: (
 					<UsersIcon
 					/>
@@ -74,7 +74,7 @@ export const navGroups: SidebarNavGroup[] = [
 			},
 			{
 				title: "Cohorts",
-				path: "#/cohorts",
+				path: "/cohorts",
 				icon: (
 					<ChartPieIcon
 					/>
@@ -82,7 +82,7 @@ export const navGroups: SidebarNavGroup[] = [
 			},
 			{
 				title: "Profiles",
-				path: "#/profiles",
+				path: "/profiles",
 				icon: (
 					<UserIcon
 					/>
@@ -95,7 +95,7 @@ export const navGroups: SidebarNavGroup[] = [
 		items: [
 			{
 				title: "Integrations",
-				path: "#/integrations",
+				path: "/integrations",
 				icon: (
 					<PlugIcon
 					/>
