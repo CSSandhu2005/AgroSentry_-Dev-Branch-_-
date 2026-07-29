@@ -7,19 +7,14 @@ import { TopReferrers } from "@/components/top-referrers";
 import { TrafficSourcesChart } from "@/components/traffic-sources-chart";
 import { VisitorsChart } from "@/components/visitors-chart";
 import { WebVitals } from "@/components/web-vitals";
+import { AIChat } from "./ai/AIChat";
 
 export function Dashboard() {
-	return (
-		<div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-			<VisitorsChart />
-			<OnlineNow />
-			<TopPages />
-			<TopCountries />
-			<TrafficSourcesChart />
-			<AudienceMix />
-			<BrowserShare />
-			<TopReferrers />
-			<WebVitals />
-		</div>
-	);
+  return (
+    <>
+	  <div className="mt-8">
+                <AIChat />
+            </div>
+    </>
+  );
 }
