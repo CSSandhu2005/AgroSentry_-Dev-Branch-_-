@@ -17,6 +17,7 @@ const navLinks = [
   { href: '/disease', Icon: DiseaseIcon, label: 'Disease' },
   { href: '/nutrient', Icon: PlanIcon, label: 'Nutrient' },
   { href: '/spatial-planner', Icon: MapIcon, label: 'Spatial' },
+  { href: '/autonomous/mission-studio', Icon: MapIcon, label: 'Mission Studio' },
   { href: '/agent-chat', Icon: ChatIcon, label: 'AI Chat' },
   { href: '/reports', Icon: ReportIcon, label: 'Reports' },
   { href: '/profile', Icon: ProfileIcon, label: 'Profile' },

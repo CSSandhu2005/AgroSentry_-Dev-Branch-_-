@@ -419,12 +419,7 @@ function draw3D(
   // ── HUD overlay ──
   ctx.save();
   ctx.fillStyle = 'rgba(8,18,35,0.7)';
-  ctx.beginPath();
-  if (typeof ctx.roundRect === 'function') {
-    ctx.roundRect(8, 8, 310, 44, 8);
-  } else {
-    ctx.rect(8, 8, 310, 44);
-  }
+  (ctx as any).roundRect?.(8, 8, 310, 44, 8);
   ctx.fill();
   ctx.fillStyle = 'rgba(255,255,255,0.8)'; ctx.font = 'bold 12px Inter,sans-serif';
   ctx.fillText('🗺️ 3D Isometric  ·  Drag · Scroll to zoom · Hover to inspect', 18, 27);
@@ -435,12 +430,11 @@ function draw3D(
 
 // ── Satellite Map with Draw + Save ────────────────────────
 function SatelliteMap({
-  result, onBoundarySaved, savedBoundary, showToast,
+  result, onBoundarySaved, savedBoundary,
 }: {
   result: LayoutResult | null;
   onBoundarySaved: (latlngs: [number, number][], acres: number) => void;
   savedBoundary: { latlngs: [number, number][]; area_acres: number } | null;
-  showToast?: (msg: string, type?: 'success' | 'error') => void;
 }) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInst = useRef<unknown>(null);
@@ -608,37 +602,21 @@ function SatelliteMap({
       );
       center.lat /= pendingLatlngs.length;
       center.lng /= pendingLatlngs.length;
-
       const res = await fetch('/api/field-boundary', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          farmerId: 5,
-          polygon: pendingLatlngs,
-          area: drawnAcres,
-          centroid: {
-            lat: center.lat,
-            lng: center.lng,
-          },
-          latlngs: pendingLatlngs,
-          area_acres: drawnAcres,
-          center,
-        }),
+        body: JSON.stringify({ latlngs: pendingLatlngs, area_acres: drawnAcres, center }),
       });
       const data = await res.json().catch(() => ({}));
-      if (res.ok && data.success !== false) {
-        setSaveMsg('✅ Field boundary saved to database!');
-        showToast?.('Field boundary saved successfully! 🌾', 'success');
+      if (res.ok) {
+        const storageLabel = data.storage === 'fluxbase-s3' ? '(saved as GeoJSON file)' : '(saved to database)';
+        setSaveMsg(`✅ Field saved! ${storageLabel} — 2D & 3D views will now use your field shape.`);
         onBoundarySaved(pendingLatlngs, drawnAcres);
         setPendingLatlngs(null);
       } else {
         setSaveMsg(`❌ ${data.error || 'Failed to save.'}`);
-        showToast?.(`Failed to save: ${data.error || 'Unknown error'}`, 'error');
       }
-    } catch {
-      setSaveMsg('❌ Connection error.');
-      showToast?.('Connection error while saving boundary', 'error');
-    }
+    } catch { setSaveMsg('❌ Connection error.'); }
     finally { setSaving(false); }
   }
 
@@ -739,31 +717,16 @@ export default function SpatialPlannerPage() {
   const animFrameRef = useRef<number | null>(null);
   const timeRef = useRef(0);
 
-  const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null);
-
-  const showToast = useCallback((msg: string, type: 'success' | 'error' = 'success') => {
-    setToast({ msg, type });
-    setTimeout(() => setToast(null), 4000);
-  }, []);
-
   // Load saved boundary on mount
   useEffect(() => {
-    fetch('/api/field-boundary?farmerId=5')
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.success && data.boundary) {
-          const latlngs = data.boundary.polygon || data.boundary.latlngs;
-          const area = data.boundary.area ?? data.boundary.area_acres;
-          if (latlngs && latlngs.length) {
-            setSavedBoundary({ latlngs, area_acres: area });
-            setNormPoly(latLngToNorm(latlngs));
-            setLandSize(area);
-            showToast(`Loaded field boundary (${area} acres)`, 'success');
-          }
-        }
-      })
-      .catch(() => {});
-  }, [showToast]);
+    fetch('/api/field-boundary').then((r) => r.json()).then((data) => {
+      if (data.boundary?.latlngs) {
+        setSavedBoundary({ latlngs: data.boundary.latlngs, area_acres: data.boundary.area_acres });
+        setNormPoly(latLngToNorm(data.boundary.latlngs));
+        setLandSize(data.boundary.area_acres);
+      }
+    }).catch(() => {});
+  }, []);
 
   const redraw = useCallback(() => {
     const canvas = canvasRef.current;
@@ -1083,7 +1046,7 @@ export default function SpatialPlannerPage() {
       {/* Satellite */}
       {viewMode === 'Satellite' && (
         <div className="card fade-in" style={{ padding: '0.75rem', marginBottom: '1rem', borderRadius: 14, overflow: 'hidden' }}>
-          <SatelliteMap result={result} onBoundarySaved={handleBoundarySaved} savedBoundary={savedBoundary} showToast={showToast} />
+          <SatelliteMap result={result} onBoundarySaved={handleBoundarySaved} savedBoundary={savedBoundary} />
         </div>
       )}
 
@@ -1208,32 +1171,6 @@ export default function SpatialPlannerPage() {
           <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', flex: 1, borderLeft: '1px solid var(--glass-border)', paddingLeft: '1.25rem', lineHeight: 1.6 }}>
             {result.analysis.replace(/\*\*(.*?)\*\*/g, '$1')}
           </p>
-        </div>
-      )}
-      {/* Toast Notification */}
-      {toast && (
-        <div
-          style={{
-            position: 'fixed',
-            bottom: 24,
-            right: 24,
-            zIndex: 9999,
-            background: toast.type === 'success' ? 'rgba(16, 185, 129, 0.95)' : 'rgba(239, 68, 68, 0.95)',
-            backdropFilter: 'blur(10px)',
-            color: '#fff',
-            padding: '0.75rem 1.25rem',
-            borderRadius: 12,
-            fontWeight: 700,
-            fontSize: '0.88rem',
-            boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
-            border: `1px solid ${toast.type === 'success' ? 'rgba(74,222,128,0.5)' : 'rgba(248,113,113,0.5)'}`,
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.6rem',
-          }}
-        >
-          <span>{toast.type === 'success' ? '✅' : '❌'}</span>
-          <span>{toast.msg}</span>
         </div>
       )}
     </div>

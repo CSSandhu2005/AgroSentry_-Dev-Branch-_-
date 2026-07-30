@@ -21,16 +21,17 @@ const PRIMARY = [
   { href: '/',            label: 'Home',    d: 'M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z M9 22V12h6v10' },
   { href: '/agent-chat',  label: 'AI Chat', d: 'M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z' },
   { href: '/disease',     label: 'Disease', d: 'M12 2a10 10 0 100 20 10 10 0 000-20z M12 8v4 M12 16h.01' },
-  { href: '/spatial-planner', label: 'Map', d: 'M3 6l9-4 9 4v12l-9 4-9-4V6z M12 2v20 M3 6l9 4 9-4' },
+  { href: '/spatial-planner', label: 'Spatial', d: 'M3 6l9-4 9 4v12l-9 4-9-4V6z M12 2v20 M3 6l9 4 9-4' },
 ];
 
 // ── All pages in the "More" drawer ────────────────────────────
 const MORE_PAGES = [
-  { href: '/profile',         label: 'My Profile',       emoji: '👤', desc: 'View & edit your farm info' },
-  { href: '/recommendation',  label: 'Crop Advice',       emoji: '🌱', desc: 'AI crop recommendations' },
-  { href: '/plan',            label: 'Crop Plan',         emoji: '📅', desc: 'Season management plan' },
-  { href: '/disease',         label: 'Disease Diagnosis', emoji: '🔬', desc: 'AI pest & disease scanner' },
-  { href: '/spatial-planner', label: 'Spatial Map',       emoji: '🗺️', desc: 'Draw & measure your field' },
+  { href: '/profile',                  label: 'My Profile',       emoji: '👤', desc: 'View & edit your farm info' },
+  { href: '/recommendation',           label: 'Crop Advice',       emoji: '🌱', desc: 'AI crop recommendations' },
+  { href: '/plan',                     label: 'Crop Plan',         emoji: '📅', desc: 'Season management plan' },
+  { href: '/disease',                  label: 'Disease Diagnosis', emoji: '🔬', desc: 'AI pest & disease scanner' },
+  { href: '/spatial-planner',          label: 'Spatial Map',       emoji: '🌾', desc: 'Draw & measure crop layout' },
+  { href: '/autonomous/mission-studio', label: 'Mission Studio',  emoji: '🚁', desc: 'Boustrophedon 2D/3D flight planner' },
   { href: '/agent-chat',      label: 'AI Chat',           emoji: '💬', desc: 'Chat with farm AI agents' },
   { href: '/agents',          label: 'Agent Hub',         emoji: '🤖', desc: 'Run autonomous AI agents' },
   { href: '/report',          label: 'Farm Report',       emoji: '📊', desc: 'Full AI farm analysis' },

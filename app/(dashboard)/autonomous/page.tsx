@@ -17,6 +17,7 @@ import {
   Cpu,
   Leaf,
   BarChart3,
+  Globe,
 } from "lucide-react";
 import { MissionStatusCard } from "@/components/autonomous/widgets/MissionStatusCard";
 import { DroneTelemetryCard } from "@/components/autonomous/widgets/DroneTelemetryCard";
@@ -24,6 +25,13 @@ import { SdgMetricCard } from "@/components/autonomous/widgets/SdgMetricCard";
 
 export default function AutonomousOperationsOverviewPage() {
   const operationsModules = [
+    {
+      title: "Mission Planning Studio",
+      path: "/autonomous/mission-studio",
+      icon: <Globe className="w-5 h-5 text-emerald-500" />,
+      description: "Synchronized 2D Satellite boundary, Boustrophedon path planner, 3D farm twin, and dynamic replanning.",
+      badge: "Flagship Studio",
+    },
     {
       title: "Mission Control",
       path: "/autonomous/mission-control",
