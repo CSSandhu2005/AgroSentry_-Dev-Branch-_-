@@ -1,168 +1,277 @@
-// src/app/page.tsx — Home / Dashboard
 import Link from 'next/link';
+import Navbar from '@/components/SuperUI/Navbar';
 import { getSession } from '@/lib/session';
-import Dashboard from '@/components/SuperUI/Dashboard';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import {
-  CropIcon, DiseaseIcon, SpatialIcon, PlanIcon, ChatIcon,
-  FileIcon, BrainIcon, ZapIcon, LeafIcon, MoneyIcon,
-} from '@/components/SuperUI/Icons';
+  Sprout,
+  Stethoscope,
+  Compass,
+  Calendar,
+  Bot,
+  FileText,
+  TrendingUp,
+  ShieldCheck,
+  ArrowRight,
+  Cpu,
+  CheckCircle2,
+  Sparkles,
+} from 'lucide-react';
 
 const features = [
-  { Icon: CropIcon, color: '#4ade80', title: 'AI Crop Recommendations', desc: 'Get AI crop suggestions tailored to your soil, water, and season.', href: '/recommendation' },
-  { Icon: DiseaseIcon, color: '#f87171', title: 'Disease Diagnosis', desc: 'Upload a leaf photo for instant AI-powered plant disease analysis.', href: '/disease' },
-  { Icon: SpatialIcon, color: '#60a5fa', title: 'Spatial Twin', desc: 'Draw your real field on satellite, then simulate digital twin layouts.', href: '/spatial-planner' },
-  { Icon: PlanIcon, color: '#a78bfa', title: 'Crop Planning', desc: 'Complete lifecycle plans: sowing, irrigation, fertilizer, and harvest.', href: '/plan' },
-  { Icon: ChatIcon, color: '#34d399', title: 'Agentic AI Chat', desc: 'Farming assistant that uses 8+ tools to answer any question.', href: '/agent-chat' },
-  { Icon: FileIcon, color: '#fbbf24', title: 'File Manager', desc: 'Download AgroSentry Cloud files', href: '/files' },
+  {
+    icon: Sprout,
+    title: 'AI Crop Recommendation',
+    desc: 'Get high-yield crop suggestions tailored to your soil chemistry, water availability, and seasonal forecasts.',
+    href: '/recommendation',
+    badge: 'Agronomic AI',
+  },
+  {
+    icon: Stethoscope,
+    title: 'Disease Diagnostic Scanner',
+    desc: 'Upload a leaf photo for instant computer-vision pathogen identification and organic/chemical treatment plans.',
+    href: '/disease',
+    badge: 'Vision AI',
+  },
+  {
+    icon: Compass,
+    title: '3D Spatial Digital Twin',
+    desc: 'Map your field on satellite imagery and simulate optimal companion planting & row arrangements in 3D.',
+    href: '/spatial-planner',
+    badge: 'Spatial Intelligence',
+  },
+  {
+    icon: Calendar,
+    title: 'Precision Crop Planner',
+    desc: 'Full lifecycle management: sowing dates, automated irrigation schedules, fertilizer doses, and harvest windows.',
+    href: '/plan',
+    badge: 'Lifecycle Agent',
+  },
+  {
+    icon: Bot,
+    title: 'Voice-First AI Assistant',
+    desc: 'Multilingual conversational AI supporting Hindi, Kannada, Tamil, Telugu, and English via voice or text.',
+    href: '/agent-chat',
+    badge: 'Voice AI',
+  },
+  {
+    icon: FileText,
+    title: 'Executive Farm Reports',
+    desc: 'Generate printable PDF analytical reports summarizing health scores, risk levels, and drone mission logs.',
+    href: '/reports',
+    badge: 'Analytics',
+  },
 ];
 
-export default async function Home() {
+const mandiPrices = [
+  { name: 'Wheat', price: '₹2,275/q', change: '+1.2%', up: true },
+  { name: 'Rice', price: '₹3,900/q', change: '+0.8%', up: true },
+  { name: 'Tomato', price: '₹1,450/q', change: '-3.5%', up: false },
+  { name: 'Onion', price: '₹980/q', change: '+2.1%', up: true },
+  { name: 'Soybean', price: '₹4,200/q', change: '+0.5%', up: true },
+  { name: 'Maize', price: '₹1,820/q', change: '-1.0%', up: false },
+  { name: 'Cotton', price: '₹6,500/q', change: '+1.8%', up: true },
+  { name: 'Groundnut', price: '₹5,150/q', change: '+0.3%', up: true },
+];
+
+export default async function LandingPage() {
   const session = await getSession();
   const loggedIn = !!session.userId;
   const hasProfile = !!session.farmerId;
 
   return (
-    <div className="page-container" style={{ maxWidth: 1100 }}>
+    <div className="flex flex-col gap-12 w-full max-w-7xl mx-auto py-6 px-4">
+      <Navbar />
 
-      {/* ── Hero ── */}
-      <div style={{ textAlign: 'center', padding: '3rem 0 2rem', animation: 'fadeIn 0.6s ease' }}>
-        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
-          <LeafIcon size={56} color="#4ade80" style={{ filter: 'drop-shadow(0 0 16px rgba(74,222,128,0.5))' }} />
+      {/* ── Hero Section ── */}
+      <section className="flex flex-col items-center text-center  pt-8 pb-4 space-y-6">
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 mt-20 rounded-full bg-muted border border-border text-xs font-semibold">
+          <Sparkles className="h-4 w-4 text-primary" />
+          <span>Next-Gen Agricultural Intelligence Engine</span>
+          <Badge variant="secondary" className="text-[10px] uppercase font-bold">v2.0</Badge>
         </div>
-        <h1 style={{ fontSize: 'clamp(2rem,6vw,3.2rem)', fontWeight: 800, lineHeight: 1.1, marginBottom: '1rem' }}>
+
+        <h1 className="text-4xl md:text-6xl font-black tracking-tight text-foreground max-w-4xl leading-tight">
           Farm Smarter with{' '}
-          <span style={{ background: 'linear-gradient(135deg,#22c55e,#a3e635)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-            AI Intelligence
+          <span className="bg-gradient-to-r from-emerald-500 via-green-400 to-lime-400 bg-clip-text text-transparent">
+            Multi-Agent AI Intelligence
           </span>
         </h1>
-        <p style={{ fontSize: 'clamp(0.9rem,3vw,1.1rem)', color: 'var(--text-muted)', maxWidth: 560, margin: '0 auto 2rem' }}>
-          Voice-first AI platform for every Indian farmer — speak your questions, get instant answers.
+
+        <p className="text-base md:text-lg text-muted-foreground max-w-2xl leading-relaxed">
+          Voice-first AI platform for Indian agriculture. Get real-time crop advice, automated pest diagnosis, 3D spatial mapping, and autonomous drone flight rosters.
         </p>
-        {!loggedIn && (
-          <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link href="/signup" className="btn btn-primary" style={{ fontSize: '1rem', padding: '0.9rem 2rem' }}>Get Started Free</Link>
-            <Link href="/login" className="btn btn-secondary" style={{ fontSize: '1rem', padding: '0.9rem 2rem' }}>Login</Link>
+
+        {/* CTA Buttons */}
+        <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
+          {loggedIn ? (
+            <Link
+              href={hasProfile ? '/dashboard' : '/intake'}
+              className="h-12 px-8 rounded-xl bg-primary text-primary-foreground font-bold text-sm inline-flex items-center gap-2 shadow-lg hover:opacity-90 transition-opacity"
+            >
+              {hasProfile ? 'Launch AI Dashboard' : 'Complete Setup'} <ArrowRight className="h-4 w-4" />
+            </Link>
+          ) : (
+            <>
+              <Link
+                href="/signup"
+                className="h-12 px-8 rounded-xl bg-primary text-primary-foreground font-bold text-sm inline-flex items-center gap-2 shadow-lg hover:opacity-90 transition-opacity"
+              >
+                Get Started Free <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link
+                href="/login"
+                className="h-12 px-8 rounded-xl border border-input bg-background text-foreground font-semibold text-sm inline-flex items-center hover:bg-accent transition-colors"
+              >
+                Sign In
+              </Link>
+            </>
+          )}
+        </div>
+
+        {/* Quick status bar */}
+        {loggedIn && (
+          <div className="p-3 rounded-xl bg-muted/60 border border-border text-xs text-muted-foreground flex items-center gap-2">
+            <CheckCircle2 className="h-4 w-4 text-primary" />
+            <span>Logged in as <strong>{session.email || 'Farmer User'}</strong>.</span>
+            <Link href="/dashboard" className="text-primary font-bold hover:underline">
+              Go to Dashboard →
+            </Link>
           </div>
         )}
-      </div>
+      </section>
 
-      {/* ── Mandi Price Ticker ── */}
-      <div style={{ marginBottom: '2.5rem', background: 'rgba(22,163,74,0.06)', border: '1px solid rgba(74,222,128,0.15)', borderRadius: 12, padding: '0.6rem 0', overflow: 'hidden' }}>
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <div style={{ background: 'linear-gradient(135deg,#16a34a,#15803d)', color: '#fff', fontWeight: 700, fontSize: '0.65rem', padding: '0.3rem 0.75rem', borderRadius: '8px 0 0 8px', letterSpacing: '0.06em', whiteSpace: 'nowrap', flexShrink: 0, display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-            <MoneyIcon size={12} color="#fff" /> MANDI
-          </div>
-          <div className="ticker-wrap" style={{ flex: 1 }}>
-            <div className="ticker-inner">
-              {[
-                { name: 'Wheat', price: '₹2,275/q', change: '+1.2%', up: true },
-                { name: 'Rice', price: '₹3,900/q', change: '+0.8%', up: true },
-                { name: 'Tomato', price: '₹1,450/q', change: '-3.5%', up: false },
-                { name: 'Onion', price: '₹980/q', change: '+2.1%', up: true },
-                { name: 'Soybean', price: '₹4,200/q', change: '+0.5%', up: true },
-                { name: 'Maize', price: '₹1,820/q', change: '-1.0%', up: false },
-                { name: 'Cotton', price: '₹6,500/q', change: '+1.8%', up: true },
-                { name: 'Groundnut', price: '₹5,150/q', change: '+0.3%', up: true },
-                { name: 'Mustard', price: '₹5,450/q', change: '-0.7%', up: false },
-                { name: 'Sugarcane', price: '₹315/q', change: '0.0%', up: true },
-                // Duplicate for seamless loop
-                { name: 'Wheat', price: '₹2,275/q', change: '+1.2%', up: true },
-                { name: 'Rice', price: '₹3,900/q', change: '+0.8%', up: true },
-                { name: 'Tomato', price: '₹1,450/q', change: '-3.5%', up: false },
-                { name: 'Onion', price: '₹980/q', change: '+2.1%', up: true },
-                { name: 'Soybean', price: '₹4,200/q', change: '+0.5%', up: true },
-                { name: 'Maize', price: '₹1,820/q', change: '-1.0%', up: false },
-                { name: 'Cotton', price: '₹6,500/q', change: '+1.8%', up: true },
-                { name: 'Groundnut', price: '₹5,150/q', change: '+0.3%', up: true },
-                { name: 'Mustard', price: '₹5,450/q', change: '-0.7%', up: false },
-                { name: 'Sugarcane', price: '₹315/q', change: '0.0%', up: true },
-              ].map((item, i) => (
-                <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.8rem', padding: '0 1rem', borderRight: '1px solid rgba(74,222,128,0.12)', whiteSpace: 'nowrap' }}>
-                  <span style={{ fontWeight: 600 }}>{item.name}</span>
-                  <span style={{ color: 'var(--text-muted)' }}>{item.price}</span>
-                  <span style={{ color: item.up ? '#4ade80' : '#f87171', fontWeight: 700, fontSize: '0.72rem' }}>
-                    {item.up ? '▲' : '▼'} {item.change}
-                  </span>
-                </span>
-              ))}
+      {/* ── Live Mandi Price Ticker ── */}
+      <div className="w-full rounded-2xl bg-card border border-border p-4 shadow-sm overflow-hidden">
+        <div className="flex items-center gap-3 mb-3">
+          <Badge variant="outline" className="text-[10px] font-extrabold uppercase tracking-wider gap-1">
+            <TrendingUp className="h-3 w-3 text-primary" /> Live Mandi Commodity Rates
+          </Badge>
+          <span className="text-xs text-muted-foreground">Updated hourly</span>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2">
+          {mandiPrices.map((item, i) => (
+            <div key={i} className="p-2.5 rounded-xl bg-muted/30 border border-border text-center">
+              <div className="text-xs font-bold text-foreground">{item.name}</div>
+              <div className="text-[11px] font-semibold text-muted-foreground mt-0.5">{item.price}</div>
+              <span className={`text-[10px] font-bold mt-1 inline-block ${item.up ? 'text-emerald-500' : 'text-rose-500'}`}>
+                {item.up ? '▲' : '▼'} {item.change}
+              </span>
             </div>
-          </div>
+          ))}
         </div>
       </div>
 
-      {/* ── Profile completion banner ── */}
-      {loggedIn && !hasProfile && (
-        <div className="alert alert-warning" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
-          <LeafIcon size={20} color="#fde047" />
-          <div style={{ flex: 1 }}>
-            <strong>Complete your profile</strong> — AI needs your farm details to give personalized advice.
+      {/* ── Feature Cards Grid ── */}
+      <section className="space-y-6">
+        <div className="text-center space-y-2 max-w-xl mx-auto">
+          <Badge variant="secondary" className="text-[10px] uppercase font-bold tracking-wider">
+            AI Platform Capabilities
+          </Badge>
+          <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
+            Powered by 6 Specialized AI Agents
+          </h2>
+          <p className="text-xs text-muted-foreground">
+            Every module works together to maximize crop yields and minimize input costs.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {features.map((f) => {
+            const IconComponent = f.icon;
+            return (
+              <Card key={f.title} className="flex flex-col justify-between border-border bg-card shadow-sm hover:shadow-md transition-shadow">
+                <CardHeader>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="h-10 w-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+                      <IconComponent className="h-5 w-5" />
+                    </div>
+                    <Badge variant="outline" className="text-[10px]">
+                      {f.badge}
+                    </Badge>
+                  </div>
+                  <CardTitle className="text-base font-bold text-foreground">{f.title}</CardTitle>
+                  <CardDescription className="text-xs text-muted-foreground leading-relaxed mt-1">
+                    {f.desc}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  <Link
+                    href={loggedIn ? f.href : '/signup'}
+                    className="w-full flex items-center justify-between text-xs font-semibold py-1.5 text-foreground hover:text-primary transition-colors border-t border-border mt-2 pt-2"
+                  >
+                    <span>Explore Capability</span>
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* ── Drone & Satellite Tech Spotlight ── */}
+      <section className="p-8 rounded-3xl bg-card border border-border shadow-sm flex flex-col lg:flex-row items-center justify-between gap-8">
+        <div className="space-y-4 max-w-xl">
+          <Badge variant="outline" className="text-[10px] font-bold uppercase tracking-wider">
+            <Cpu className="h-3 w-3 text-primary mr-1" /> Autonomous Drone & Satellite Tech
+          </Badge>
+          <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
+            Real-time Aerial Surveys & Satellite Twin
+          </h2>
+          <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">
+            AgroSentry automatically generates flight path missions for autonomous agricultural drones. Monitor crop canopy health, spot irrigation stress, and save field boundaries directly from satellite overlays.
+          </p>
+          <div className="grid grid-cols-2 gap-4 pt-2">
+            <div className="flex items-center gap-2 text-xs font-semibold text-foreground">
+              <ShieldCheck className="h-4 w-4 text-primary" /> Autonomous Flight Pathing
+            </div>
+            <div className="flex items-center gap-2 text-xs font-semibold text-foreground">
+              <ShieldCheck className="h-4 w-4 text-primary" /> Centroid & Area Polygon Saved
+            </div>
+            <div className="flex items-center gap-2 text-xs font-semibold text-foreground">
+              <ShieldCheck className="h-4 w-4 text-primary" /> Real-time Water Saving Analytics
+            </div>
+            <div className="flex items-center gap-2 text-xs font-semibold text-foreground">
+              <ShieldCheck className="h-4 w-4 text-primary" /> Multilingual Voice Interface
+            </div>
           </div>
-          <Link href="/profile" className="btn btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.85rem', flexShrink: 0 }}>
-            Set up →
+        </div>
+
+        <div className="w-full lg:w-96 p-6 rounded-2xl bg-muted/40 border border-border flex flex-col gap-4 text-center">
+          <div className="h-14 w-14 rounded-2xl bg-primary/10 border border-primary/30 flex items-center justify-center text-primary mx-auto">
+            <Bot className="h-7 w-7" />
+          </div>
+          <div>
+            <div className="text-base font-bold text-foreground">AgroSentry Command Center</div>
+            <div className="text-xs text-muted-foreground mt-1">Access all 6 agents from a single unified dashboard.</div>
+          </div>
+          <Link
+            href={loggedIn ? '/dashboard' : '/signup'}
+            className="h-10 rounded-xl bg-primary text-primary-foreground text-xs font-bold inline-flex items-center justify-center shadow-sm hover:opacity-90 transition-opacity"
+          >
+            {loggedIn ? 'Open Dashboard' : 'Start Free Account'}
           </Link>
         </div>
-      )}
+      </section>
 
-      {/* ── Main content ── */}
-      {loggedIn && hasProfile ? (
-        <section>
-          <Dashboard />
-          <div style={{ marginTop: '3rem' }}>
-            <h3 style={{ fontSize: '0.8rem', fontWeight: 700, marginBottom: '1.25rem', color: 'var(--text-muted)', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
-              All Tools
-            </h3>
-            <div className="card-grid">
-              {features.map((f, i) => (
-                <Link key={f.href} href={f.href} style={{ textDecoration: 'none' }}>
-                  <div className="card fade-in feature-card" style={{ padding: '1.25rem', animationDelay: `${i * 0.05}s`, display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
-                    <div style={{ width: 44, height: 44, borderRadius: 12, background: `${f.color}18`, border: `1px solid ${f.color}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                      <f.Icon size={22} color={f.color} />
-                    </div>
-                    <div>
-                      <div style={{ fontWeight: 700, fontSize: '0.9rem', marginBottom: '0.25rem', color: 'var(--text)' }}>{f.title}</div>
-                      <p style={{ color: 'var(--text-muted)', fontSize: '0.78rem', lineHeight: 1.5, margin: 0 }}>{f.desc}</p>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-      ) : (
-        <div className="card-grid">
-          {features.map((f, i) => (
-            <Link key={f.href} href={loggedIn ? f.href : '/signup'} style={{ textDecoration: 'none' }}>
-              <div className="card fade-in feature-card" style={{ animationDelay: `${i * 0.08}s` }}>
-                <div style={{ width: 52, height: 52, borderRadius: 14, background: `${f.color}18`, border: `1px solid ${f.color}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '0.85rem' }}>
-                  <f.Icon size={26} color={f.color} />
-                </div>
-                <h3 style={{ fontWeight: 700, marginBottom: '0.5rem', fontSize: '1rem', color: 'var(--text)' }}>{f.title}</h3>
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', lineHeight: 1.5 }}>{f.desc}</p>
-                {!loggedIn && (
-                  <div style={{ marginTop: '1rem', fontSize: '0.72rem', fontWeight: 700, color: 'var(--green-500)' }}>SIGN UP TO UNLOCK →</div>
-                )}
-              </div>
-            </Link>
-          ))}
+      {/* ── Final Call to Action ── */}
+      <section className="text-center py-8 space-y-4">
+        <h2 className="text-2xl md:text-4xl font-black text-foreground">
+          Ready to Modernize Your Agriculture?
+        </h2>
+        <p className="text-xs md:text-sm text-muted-foreground max-w-md mx-auto">
+          Join thousands of farmers using AI-driven precision agriculture for higher yields and sustainable farming.
+        </p>
+        <div className="pt-2">
+          <Link
+            href={loggedIn ? '/dashboard' : '/signup'}
+            className="h-12 px-8 rounded-xl bg-primary text-primary-foreground font-bold text-sm inline-flex items-center gap-2 shadow-lg hover:opacity-90 transition-opacity"
+          >
+            {loggedIn ? 'Access AI Dashboard' : 'Create Free Account'} <ArrowRight className="h-4 w-4" />
+          </Link>
         </div>
-      )}
-
-      {/* ── Stats row (logged out) ── */}
-      {!loggedIn && (
-        <div className="card-grid" style={{ marginTop: '3rem', textAlign: 'center' }}>
-          {[
-            { Icon: ZapIcon, val: '15+', label: 'AI Agents', color: '#a78bfa' },
-            { Icon: BrainIcon, val: '∞', label: 'Memory', color: '#34d399' },
-            { Icon: LeafIcon, val: '100%', label: 'Free', color: '#4ade80' },
-          ].map(({ Icon, val, label, color }) => (
-            <div key={label} style={{ padding: '1.5rem 1rem' }}>
-              <Icon size={28} color={color} style={{ margin: '0 auto 0.5rem', display: 'block' }} />
-              <div style={{ fontSize: '1.6rem', fontWeight: 800, color }}>{val}</div>
-              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{label}</div>
-            </div>
-          ))}
-        </div>
-      )}
+      </section>
     </div>
   );
 }

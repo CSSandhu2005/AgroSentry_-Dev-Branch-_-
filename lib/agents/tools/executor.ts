@@ -196,12 +196,13 @@ export async function executeTool(
       return `Cross-Session Memory (recent conversations):\n${formatted}`;
     }
 
-    // ── 6. Full Crop Report ────────────────────────────────
     case 'generate_crop_report': {
       emit('📊 Generating your complete farm report...');
       const result = await runReportAgent(ctx);
       if (!result.success || !result.data) return 'Report generation failed.';
-      return `Farm Advisory Report:\n${result.data.report}\n\nKey Action Items:\n${result.data.sections.action_items?.map((a, i) => `${i + 1}. ${a}`).join('\n')}`;
+      const rep = result.data;
+      const actions = rep.actionPlan.map((a: { task: string }, i: number) => `${i + 1}. ${a.task}`).join('\n');
+      return `Farm Advisory Report (${rep.metadata.reportId}):\nStatus: ${rep.executiveSummary.status}\n${rep.executiveSummary.currentSituation}\n\nKey Action Items:\n${actions}`;
     }
 
     // ── 7. Mandi Prices ────────────────────────────────────

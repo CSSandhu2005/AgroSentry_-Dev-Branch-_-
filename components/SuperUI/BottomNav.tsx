@@ -198,7 +198,7 @@ export default function BottomNav() {
       )}
 
       {/* ── Bottom nav bar ── */}
-      <nav className="bottom-nav">
+      <nav className="bottom-nav md:hidden">
         {PRIMARY.map(({ href, label, d }) => {
           const active = href === '/' ? pathname === '/' : pathname.startsWith(href);
           return (

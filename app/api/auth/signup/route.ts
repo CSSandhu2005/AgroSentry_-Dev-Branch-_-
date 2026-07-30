@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           to: email,
-          subject: 'Welcome to SuperFarmer!',
+          subject: 'Welcome to AgroSentry!',
           text: `<h1>Welcome!</h1><p>Your agricultural journey starts here.</p>`,
         }),
       });

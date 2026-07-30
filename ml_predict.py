@@ -6,7 +6,7 @@ import os
 def main():
     try:
         # Load the model from the python backend directory
-        model_path = os.path.join(os.path.dirname(__file__), '..', 'superfarmer', 'superfarmer', 'crop_model.pkl')
+        model_path = os.path.join(os.path.dirname(__file__), '..', 'AgroSentry', 'AgroSentry', 'crop_model.pkl')
         model = joblib.load(model_path)
         
         # Parse inputs

@@ -330,7 +330,7 @@ export default function AgentChatPage() {
 
             // Translate live thinking messages
             const t = getAllUI(userLang);
-            if (event.message.includes("SuperFarmer AI is thinking")) {
+            if (event.message.includes("AgroSentry AI is thinking")) {
               event.message = t.thinkBase;
             } else if (event.message.includes("Calling tool: ")) {
               const tool = event.message

@@ -12,7 +12,7 @@ export interface SessionData {
 
 export const sessionOptions: SessionOptions = {
   password: process.env.SESSION_SECRET || 'change_this_to_a_long_secret_of_at_least_32_chars!!',
-  cookieName: 'superfarmer_session',
+  cookieName: 'AgroSentry_session',
   cookieOptions: {
     secure: process.env.NODE_ENV === 'production',
     httpOnly: true,

@@ -74,7 +74,7 @@ export default function VoiceAssistant({ lang = 'en' }: { lang?: string }) {
   }, [listening, thinking, startVoice, stopVoice]);
 
   const readPage = useCallback(() => {
-    const s = PAGE_SUMMARIES[pathname] ?? 'Welcome to SuperFarmer AI.';
+    const s = PAGE_SUMMARIES[pathname] ?? 'Welcome to AgroSentry AI.';
     speak(s, langCode);
   }, [pathname, langCode]);
 
@@ -84,14 +84,14 @@ export default function VoiceAssistant({ lang = 'en' }: { lang?: string }) {
   const fabBg = listening
     ? 'linear-gradient(135deg,#dc2626,#b91c1c)'
     : thinking
-    ? 'linear-gradient(135deg,#7c3aed,#6d28d9)'
-    : 'linear-gradient(135deg,#16a34a,#15803d)';
+      ? 'linear-gradient(135deg,#7c3aed,#6d28d9)'
+      : 'linear-gradient(135deg,#16a34a,#15803d)';
 
   const fabShadow = listening
     ? '0 4px 24px rgba(220,38,38,0.6)'
     : thinking
-    ? '0 4px 24px rgba(124,58,237,0.6)'
-    : '0 4px 24px rgba(22,163,74,0.5)';
+      ? '0 4px 24px rgba(124,58,237,0.6)'
+      : '0 4px 24px rgba(22,163,74,0.5)';
 
   return (
     <>
@@ -169,7 +169,7 @@ export default function VoiceAssistant({ lang = 'en' }: { lang?: string }) {
 
           {/* Wave animation */}
           <div style={{ display: 'flex', gap: 6, alignItems: 'center', height: 40 }}>
-            {[0,1,2,3,4,5,6].map(i => (
+            {[0, 1, 2, 3, 4, 5, 6].map(i => (
               <div key={i} style={{
                 width: 4, borderRadius: 999,
                 background: '#f87171',

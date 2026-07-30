@@ -20,7 +20,7 @@ export interface ChatData {
 
 const MAX_ITERATIONS = 12; // Increased to allow more room for complex reasoning
 
-const AGENT_SYSTEM_PROMPT = `You are SuperFarmer AI — an expert farming advisor for Indian farmers. Use tools to fetch real data; never invent facts.
+const AGENT_SYSTEM_PROMPT = `You are AgroSentry AI — an expert farming advisor for Indian farmers. Use tools to fetch real data; never invent facts.
 
 Rules:
 1. Greetings/simple questions → answer directly, no tools needed.
@@ -73,18 +73,19 @@ export async function runChatAgent(
   }));
 
   const langPref = ctx.farmerProfile?.preferred_lang || 'en';
-  const langInstruction = langPref !== 'en' 
+  const langInstruction = langPref !== 'en'
     ? `\n\nCRITICAL LANGUAGE INSTRUCTION: 
 1. You MUST translate and write your FINAL RESPONSE exclusively in the language code: '${langPref}'. Do not use English script in the final answer, use the native script of '${langPref}'.
-2. However, when calling ANY tools, you MUST pass all arguments in English! Translate the user's input to English internally before passing it into a tool's JSON arguments. Tool arguments must be in English.` 
+2. However, when calling ANY tools, you MUST pass all arguments in English! Translate the user's input to English internally before passing it into a tool's JSON arguments. Tool arguments must be in English.`
     : '';
 
   const messages: object[] = [
     { role: 'system', content: AGENT_SYSTEM_PROMPT + langInstruction },
     ...historyMessages,
-    { role: 'user', content: imageBase64
-      ? `${question}\n\n[A crop/leaf photo has been attached by the farmer. When calling diagnose_crop_disease, the image will be automatically used for visual analysis.]`
-      : question
+    {
+      role: 'user', content: imageBase64
+        ? `${question}\n\n[A crop/leaf photo has been attached by the farmer. When calling diagnose_crop_disease, the image will be automatically used for visual analysis.]`
+        : question
     },
   ];
 

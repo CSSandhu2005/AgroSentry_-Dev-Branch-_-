@@ -1,5 +1,5 @@
 // src/lib/voice.ts
-// Web Speech API utilities — voice input + output for SuperFarmer
+// Web Speech API utilities — voice input + output for AgroSentry
 // Works on Android Chrome/Edge — no API cost required
 
 /** Strip markdown so text sounds natural when spoken */
@@ -88,12 +88,12 @@ export function startListening(
 
   sr.onend = () => { onEnd?.(); };
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  sr.onerror = (e: any) => { 
+  sr.onerror = (e: any) => {
     console.error('Speech recognition error:', e.error, e.message);
     if (e.error === 'not-allowed') alert('Microphone permission blocked. Please allow mic access in your browser settings.');
     else if (e.error === 'network') alert('Network error. Speech recognition requires an internet connection.');
     else if (e.error !== 'no-speech') alert('Mic error: ' + e.error);
-    onEnd?.(); 
+    onEnd?.();
   };
 
   sr.start();

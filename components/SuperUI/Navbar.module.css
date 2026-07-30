@@ -4,11 +4,11 @@
   left: 50%;
   transform: translateX(-50%);
   z-index: 100;
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--card);
   backdrop-filter: blur(16px);
-  border: 1px solid var(--glass-border);
+  border: 1px solid var(--border);
   border-radius: 100px;
-  box-shadow: var(--shadow);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   width: 92%;
   max-width: 1200px;
 }
@@ -32,12 +32,12 @@
   gap: 0.4rem;
   font-size: 1.05rem;
   font-weight: 800;
-  color: var(--green-600);
+  color: var(--foreground);
   text-decoration: none;
   white-space: nowrap;
   flex-shrink: 0;
 }
-.logo:hover { color: var(--green-500); }
+.logo:hover { color: var(--primary); }
 
 /* ── Hidden on mobile ── */
 .links { display: none; }
@@ -62,18 +62,18 @@
   border-radius: 8px;
   font-size: 0.8rem;
   font-weight: 500;
-  color: var(--text-muted);
+  color: var(--muted-foreground);
   text-decoration: none;
   white-space: nowrap;
   transition: background 0.15s, color 0.15s;
 }
 .link:hover {
-  background: var(--bg-2);
-  color: var(--text);
+  background: var(--accent);
+  color: var(--foreground);
 }
 .active {
-  background: var(--green-400) !important;
-  color: #fff !important;
+  background: var(--primary) !important;
+  color: var(--primary-foreground) !important;
 }
 
 .actions {

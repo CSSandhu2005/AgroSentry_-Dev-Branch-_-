@@ -36,7 +36,7 @@ export async function runEmailAgent(
 
     trace.push('Step 3: Sending email...');
     await transporter.sendMail({
-      from: `"SuperFarmer" <${process.env.EMAIL_ADDRESS}>`,
+      from: `"AgroSentry" <${process.env.EMAIL_ADDRESS}>`,
       to,
       subject,
       html,

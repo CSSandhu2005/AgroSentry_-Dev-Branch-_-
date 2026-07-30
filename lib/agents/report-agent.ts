@@ -1,135 +1,330 @@
 // src/lib/agents/report-agent.ts
-// ReportAgent — aggregates ALL agent outputs from 7 DB tables and synthesizes a final advisory
+// ReportAgent — Consumes DashboardAgent to format a presentation-agnostic Farm Advisory Report
 
+import { runDashboardAgent } from './dashboard-agent';
 import { getJsonModel, withTimeout } from '@/lib/gemini';
-import { dbExecute } from '@/lib/fluxbase';
-import { logAgentAction } from './memory';
 import type { AgentContext, AgentResult } from './types';
+import type { DashboardResponse } from './dashboard-agent';
 
-export interface CropPhase {
-  phase: string;
-  duration: string;
+// ── Presentation-Agnostic Response Contracts ──────────────────
+
+export interface ReportMetadata {
+  reportId: string;
+  status: 'Draft' | 'Final';
+  reportVersion: string;
+  schemaVersion: string;
+  generatedAt: string;
+}
+
+export interface ReportStatistics {
+  heroAgentsCompleted: number;
+  alertsCount: number;
+  pendingAnalyses: number;
+  generatedInMs: number;
+}
+
+export interface ReportConfidence {
+  dataCompletenessPct: number; // Percentage of 6 Hero Agents with available data
+  agronomicConfidencePct: number; // Overall confidence in recommendations
+  description: string;
+}
+
+export interface StructuredExecutiveSummary {
   status: string;
-  outcome_goal: string;
-  action_items: string[];
+  currentSituation: string;
+  topRisks: string[];
+  recommendedPriority: string;
+  confidence: ReportConfidence;
 }
 
-export interface ReportData {
-  report: string;
-  crop_lifecycle: CropPhase[];
-  sections: {
-    farmer_summary: string;
-    crop_recommendation: string;
-    crop_plan: string;
-    nutrient_status: string;
-    disease_history: string;
-    weather_summary: string;
-    action_items: string[];
+export interface ActionPlanItem {
+  id: string;
+  task: string;
+  category: 'Crop Care' | 'Plant Protection' | 'Soil & Nutrient' | 'Drone Mission' | 'Field Geometry';
+  priority: 'High' | 'Medium' | 'Low';
+  sourceAgent: string;
+  status: 'Pending' | 'Completed';
+}
+
+export interface TechnicalAppendix {
+  dashboardVersion: string;
+  reportVersion: string;
+  farmerId: number;
+  recommendationId: number | null;
+  planId: number | null;
+  diseaseId: number | null;
+  nutrientId: number | null;
+  spatialId: number | null;
+  boundaryId: number | null;
+  missionCount: number;
+  generatedAt: string;
+}
+
+export interface ReportResponse {
+  metadata: ReportMetadata;
+  statistics: ReportStatistics;
+  confidence: ReportConfidence;
+  overview: DashboardResponse['overview'];
+  executiveSummary: StructuredExecutiveSummary;
+  recommendation: DashboardResponse['heroAgents']['recommendation'];
+  cropPlan: DashboardResponse['heroAgents']['cropPlan'];
+  disease: DashboardResponse['heroAgents']['disease'];
+  nutrient: DashboardResponse['heroAgents']['nutrient'];
+  spatial: DashboardResponse['heroAgents']['spatialTwin'];
+  fieldBoundary: DashboardResponse['heroAgents']['fieldBoundary'];
+  drone: DashboardResponse['drone'];
+  alerts: DashboardResponse['alerts'];
+  actionPlan: ActionPlanItem[];
+  disclaimer: string;
+  appendix: TechnicalAppendix;
+}
+
+// ── Helpers ───────────────────────────────────────────────────
+
+function generateReportId(farmerId: number): string {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `RPT-${year}${month}${day}-F${farmerId}`;
+}
+
+function buildDeterministicActionPlan(dash: DashboardResponse): ActionPlanItem[] {
+  const items: ActionPlanItem[] = [];
+
+  // 1. Disease action
+  if (dash.heroAgents.disease.available && dash.heroAgents.disease.summary) {
+    const d = dash.heroAgents.disease.summary;
+    items.push({
+      id: 'act-disease',
+      task: `Apply treatment for ${d.diagnosis || 'Plant Disease'}: ${d.treatment || 'Recommended fungicide/pesticide'}`,
+      category: 'Plant Protection',
+      priority: d.severity === 'High' ? 'High' : 'Medium',
+      sourceAgent: 'Disease Detection Agent',
+      status: 'Pending',
+    });
+  }
+
+  // 2. Nutrient action
+  if (dash.heroAgents.nutrient.available && dash.heroAgents.nutrient.summary) {
+    const n = dash.heroAgents.nutrient.summary;
+    items.push({
+      id: 'act-nutrient',
+      task: `Address ${n.risk_level || 'Nutrient'} deficiency: ${n.suggested_action || 'Apply nitrogen booster'}`,
+      category: 'Soil & Nutrient',
+      priority: n.risk_level === 'High' ? 'High' : 'Medium',
+      sourceAgent: 'Nutrient Risk Agent',
+      status: 'Pending',
+    });
+  }
+
+  // 3. Drone mission action
+  if (dash.drone.missionCount > 0) {
+    items.push({
+      id: 'act-drone',
+      task: `Execute ${dash.drone.missionCount} planned autonomous drone survey flights (${dash.drone.estimatedDurationMin} min total flight time)`,
+      category: 'Drone Mission',
+      priority: 'Medium',
+      sourceAgent: 'Drone Flight Generator',
+      status: 'Pending',
+    });
+  }
+
+  // 4. Crop plan action
+  if (dash.heroAgents.cropPlan.available && dash.heroAgents.cropPlan.summary) {
+    const p = dash.heroAgents.cropPlan.summary;
+    items.push({
+      id: 'act-plan',
+      task: `Follow active sowing & irrigation schedule for ${p.crop_name}`,
+      category: 'Crop Care',
+      priority: 'Low',
+      sourceAgent: 'Crop Planning Agent',
+      status: 'Completed',
+    });
+  }
+
+  // 5. Field Boundary action
+  if (!dash.heroAgents.fieldBoundary.available) {
+    items.push({
+      id: 'act-boundary',
+      task: 'Trace field polygon on Satellite Map to calibrate spatial twin clipping',
+      category: 'Field Geometry',
+      priority: 'Low',
+      sourceAgent: 'Satellite Geometry Agent',
+      status: 'Pending',
+    });
+  }
+
+  return items;
+}
+
+// ── Gemini Executive Summary (with timeout & agronomic fallback) ──
+
+async function generateStructuredExecutiveSummary(
+  dash: DashboardResponse,
+  confidence: ReportConfidence
+): Promise<StructuredExecutiveSummary> {
+  const defaultSummary: StructuredExecutiveSummary = {
+    status: dash.metrics.farmHealthScore >= 80 ? 'Stable — Optimal Vitals' : dash.metrics.farmHealthScore >= 50 ? 'Moderate Risk — Action Advised' : 'High Priority — Immediate Action Required',
+    currentSituation: `Farm in ${dash.overview.village} (${dash.overview.landSize} acres) is operational under AgroSentry AI monitoring. ${
+      dash.heroAgents.spatialTwin.available
+        ? `Primary crop ${dash.heroAgents.spatialTwin.summary?.main_crop} intercropped with ${dash.heroAgents.spatialTwin.summary?.companion_crop}.`
+        : 'No spatial twin plan initialized yet.'
+    }`,
+    topRisks: dash.alerts.length ? dash.alerts.map(a => a.title) : ['Routine soil moisture and nutrient monitoring recommended.'],
+    recommendedPriority: dash.alerts.length ? dash.alerts[0].message : 'Maintain current drip irrigation schedule and regular crop scouting.',
+    confidence,
   };
+
+  try {
+    const model = getJsonModel(
+      `You are the Senior Farm Advisory Summarizer for AgroSentry. Synthesize farm data into a scannable executive summary. Respond strictly in valid JSON.`
+    );
+    const userPrompt = `Farmer: ${dash.overview.name} (${dash.overview.village}, ${dash.overview.landSize} acres)
+Farm Health Score: ${dash.metrics.farmHealthScore}/100
+Data Completeness: ${confidence.dataCompletenessPct}%
+Active Plan: ${dash.heroAgents.cropPlan.available ? dash.heroAgents.cropPlan.summary?.crop_name : 'None'}
+Disease Status: ${dash.heroAgents.disease.available ? dash.heroAgents.disease.summary?.diagnosis : 'None'}
+Nutrient Risk: ${dash.heroAgents.nutrient.available ? dash.heroAgents.nutrient.summary?.risk_level : 'Normal'}
+Spatial Layout: ${dash.heroAgents.spatialTwin.available ? `${dash.heroAgents.spatialTwin.summary?.main_crop} + ${dash.heroAgents.spatialTwin.summary?.companion_crop}` : 'None'}
+Alerts (${dash.alerts.length}): ${dash.alerts.map(a => a.title).join('; ')}
+
+Return ONLY JSON:
+{
+  "status": "1-sentence status badge title (e.g. Stable — Low Risk)",
+  "currentSituation": "2-sentence overview of current field & crop situation",
+  "topRisks": ["Risk 1", "Risk 2"],
+  "recommendedPriority": "Single top priority recommendation for the farmer"
+}`;
+
+    const aiRes = await withTimeout(model.generateContent(userPrompt), 5000);
+    const parsed = JSON.parse(aiRes.response.text());
+    return {
+      status: parsed.status || defaultSummary.status,
+      currentSituation: parsed.currentSituation || defaultSummary.currentSituation,
+      topRisks: Array.isArray(parsed.topRisks) && parsed.topRisks.length ? parsed.topRisks : defaultSummary.topRisks,
+      recommendedPriority: parsed.recommendedPriority || defaultSummary.recommendedPriority,
+      confidence,
+    };
+  } catch (err) {
+    console.warn('[ReportAgent] Gemini executive summary fallback used:', err);
+    return defaultSummary;
+  }
 }
 
-const SYSTEM_INSTRUCTION = `You are the SuperFarmer AI Report Agent.
-Synthesize data from multiple farm monitoring agents into a comprehensive, high-credibility advisory report.
-Respond ONLY with valid JSON. Include a 5-phase Crop Lifecycle (Preparation, Sowing, Growth, Protection, Harvest).`;
+// ── Main Agent Function ───────────────────────────────────────
 
 export async function runReportAgent(
   ctx: AgentContext
-): Promise<AgentResult<ReportData>> {
-  const trace: string[] = [];
-  const { farmerId, farmerProfile } = ctx;
+): Promise<AgentResult<ReportResponse>> {
+  const startTime = Date.now();
+  const trace: string[] = ['Step 1: Commencing Report Agent execution...'];
+  const farmerId = ctx.farmerId || 5;
 
-  if (!farmerId) {
-    return { success: false, error: 'Farmer profile required', trace };
-  }
-
-  trace.push('Step 1: Fetching agent data...');
-  const [planRows, recRows, riskRows, reportRows, sessionRows] = await Promise.all([
-    dbExecute('SELECT * FROM crop_plans WHERE farmer_id = $1 ORDER BY created_at DESC LIMIT 1', [farmerId]),
-    dbExecute('SELECT recommended_crops, created_at FROM crop_recommendations WHERE farmer_id = $1 ORDER BY created_at DESC LIMIT 3', [farmerId]),
-    dbExecute('SELECT risk_level, risk_probability, suggested_action, logged_at FROM nutrient_risk_log WHERE farmer_id = $1 ORDER BY logged_at DESC LIMIT 5', [farmerId]),
-    dbExecute('SELECT report_text, generated_at FROM reports WHERE farmer_id = $1 ORDER BY generated_at DESC LIMIT 1', [farmerId]),
-    dbExecute('SELECT interaction_log, session_date FROM session_logs WHERE farmer_id = $1 ORDER BY session_date DESC LIMIT 5', [farmerId]),
-  ]);
-
-  const latestPlan = planRows[0];
-  const profile = farmerProfile;
-  const location = [profile?.village, profile?.district, profile?.state].filter(Boolean).join(', ');
-  const cropsText = Array.isArray(profile?.primary_crops)
-    ? profile.primary_crops.join(', ')
-    : profile?.primary_crops || 'Maximum yield and profit';
-  const dataSummary = `FARMER: ${profile?.name || 'Farmer'}, LAND: ${profile?.land_acres ?? '?'}ac. CROP: ${latestPlan?.crop_name}. RISKS: ${riskRows[0]?.risk_level}.`;
-
-  trace.push('Step 2: Calling AI...');
   try {
-    const model = getJsonModel(SYSTEM_INSTRUCTION, { temperature: 0.2 });
+    // 1. Consume Dashboard Agent as Single Source of Truth
+    trace.push('Step 2: Consuming Dashboard Agent data...');
+    const dashResult = await runDashboardAgent(ctx);
 
-    const userPrompt = `Generate a professional farm advisory report for this farmer's data:
-
-FARMER: ${profile?.name || 'Farmer'}, Location: ${location || 'India'}
-LAND: ${profile?.land_acres ?? '?'} acres | WATER: ${profile?.irrigation || 'Unknown'} | GOALS: ${cropsText || 'Maximum yield and profit'}
-CROP: ${latestPlan?.crop_name || recRows[0]?.recommended_crops || 'General farming'}
-STATUS: ${latestPlan?.status || 'Active'}
-SOWING: ${latestPlan?.sowing_schedule || 'N/A'} | HARVEST: ${latestPlan?.harvest_timeline || 'N/A'}
-NUTRIENT RISKS: ${riskRows[0] ? `${riskRows[0].risk_level} risk (${riskRows[0].risk_probability}%) — ${riskRows[0].suggested_action}` : 'None recorded'}
-PAST RECOMMENDATIONS: ${recRows.map((r) => r.recommended_crops).join(', ') || 'None yet'}
-
-Return ONLY valid JSON with this exact schema:
-{
-  "report": "A 200-250 word professional overview with **bold** key points and newlines. Cover current status, risks, and strategic advice.",
-  "crop_lifecycle": [
-    { "phase": "Preparation", "duration": "Weeks 1-2", "status": "Completed", "outcome_goal": "Optimal soil and seed readiness", "action_items": ["Action 1", "Action 2"] },
-    { "phase": "Sowing", "duration": "Week 3", "status": "Upcoming", "outcome_goal": "Uniform germination across field", "action_items": ["Action 1", "Action 2"] },
-    { "phase": "Growth", "duration": "Weeks 4-10", "status": "Upcoming", "outcome_goal": "Strong vegetative development", "action_items": ["Action 1", "Action 2"] },
-    { "phase": "Protection", "duration": "Weeks 6-12", "status": "Upcoming", "outcome_goal": "Zero pest/disease losses", "action_items": ["Action 1", "Action 2"] },
-    { "phase": "Harvest", "duration": "Weeks 14-16", "status": "Not Started", "outcome_goal": "Maximum yield at optimal maturity", "action_items": ["Action 1", "Action 2"] }
-  ],
-  "sections": {
-    "farmer_summary": "1-2 sentences about this farmer's context.",
-    "crop_recommendation": "What crop/variety is best and why.",
-    "crop_plan": "Current plan status and next milestones.",
-    "nutrient_status": "Soil health and fertilizer guidance.",
-    "disease_history": "Disease risks and prevention steps.",
-    "weather_summary": "Seasonal weather impact and adjustments.",
-    "action_items": ["Top priority 1", "Top priority 2", "Top priority 3", "Top priority 4", "Top priority 5"]
-  }
-}`;
-
-    const result = await withTimeout(model.generateContent(userPrompt), 90_000);
-    const data = JSON.parse(result.response.text()) as ReportData;
-    
-    // Ensure report is a string (handle cases where AI returns an object or array)
-    if (typeof data.report !== 'string') {
-      data.report = JSON.stringify(data.report);
+    if (!dashResult.success || !dashResult.data) {
+      throw new Error(dashResult.error || 'Failed to retrieve underlying dashboard data');
     }
-    
-    await dbExecute('INSERT INTO reports (farmer_id, report_text) VALUES ($1, $2)', [farmerId, data.report]);
-    
-    void logAgentAction({
-      farmerId,
-      agent: 'report',
-      actionType: 'synthesis',
-      input: 'Synthesis request',
-      output: 'Report generated',
-      metadata: data.sections
-    });
 
-    return { success: true, data, trace };
-  } catch (err) {
-    trace.push(`Error: ${err instanceof Error ? err.message : err}`);
-    // Minimal fallback
-    const fallback: ReportData = {
-      report: "Advisory generated. Please check individual agent logs for details.",
-      crop_lifecycle: [],
-      sections: {
-        farmer_summary: "Profile exists.",
-        crop_recommendation: "Check rec history.",
-        crop_plan: "Plan active.",
-        nutrient_status: "Check risk log.",
-        disease_history: "No recent alerts.",
-        weather_summary: "Check forecast.",
-        action_items: ["Monitor soil", "Follow plan"]
-      }
+    const dash = dashResult.data;
+
+    // 2. Measure Execution & Compute Statistics dynamically
+    const generatedInMs = Date.now() - startTime;
+    const heroList = [
+      dash.heroAgents.recommendation,
+      dash.heroAgents.cropPlan,
+      dash.heroAgents.disease,
+      dash.heroAgents.nutrient,
+      dash.heroAgents.spatialTwin,
+      dash.heroAgents.fieldBoundary,
+    ];
+
+    const heroAgentsCompleted = heroList.filter((h) => h.available).length;
+    const pendingAnalyses = heroList.filter((h) => !h.available).length;
+    const alertsCount = dash.alerts.length;
+
+    const statistics: ReportStatistics = {
+      heroAgentsCompleted,
+      alertsCount,
+      pendingAnalyses,
+      generatedInMs,
     };
-    return { success: true, data: fallback, trace };
+
+    // 3. Compute Explicit Confidence
+    const dataCompletenessPct = Math.round((heroAgentsCompleted / 6) * 100);
+    const agronomicConfidencePct = Math.min(100, Math.round(dataCompletenessPct * 0.7 + (dash.metrics.farmHealthScore * 0.3)));
+
+    const confidence: ReportConfidence = {
+      dataCompletenessPct,
+      agronomicConfidencePct,
+      description: `Data Completeness (${dataCompletenessPct}%) represents available agent analyses. Agronomic Confidence (${agronomicConfidencePct}%) measures advisory reliability based on data coverage.`,
+    };
+
+    // 4. Generate Metadata & Appendix
+    const nowIso = new Date().toISOString();
+    const metadata: ReportMetadata = {
+      reportId: generateReportId(farmerId),
+      status: 'Final',
+      reportVersion: '1.0',
+      schemaVersion: '1.0',
+      generatedAt: nowIso,
+    };
+
+    const appendix: TechnicalAppendix = {
+      dashboardVersion: '1.0',
+      reportVersion: '1.0',
+      farmerId,
+      recommendationId: (dash.heroAgents.recommendation.summary?.id as number) || null,
+      planId: (dash.heroAgents.cropPlan.summary?.plan_id as number) || null,
+      diseaseId: (dash.heroAgents.disease.summary?.detection_id as number) || null,
+      nutrientId: (dash.heroAgents.nutrient.summary?.id as number) || null,
+      spatialId: (dash.heroAgents.spatialTwin.summary?.id as number) || null,
+      boundaryId: (dash.heroAgents.fieldBoundary.summary?.id as number) || null,
+      missionCount: dash.drone.missionCount,
+      generatedAt: nowIso,
+    };
+
+    // 5. Build Action Plan & Executive Summary
+    trace.push('Step 3: Building deterministic action plan checklist...');
+    const actionPlan = buildDeterministicActionPlan(dash);
+
+    trace.push('Step 4: Generating structured executive summary...');
+    const executiveSummary = await generateStructuredExecutiveSummary(dash, confidence);
+
+    const disclaimer =
+      'This advisory is generated from the latest available farm analyses. It is intended to support decision-making and should be considered alongside local agronomic conditions and farmer judgment.';
+
+    trace.push('Step 5 ✓: Report payload successfully assembled.');
+
+    return {
+      success: true,
+      data: {
+        metadata,
+        statistics,
+        confidence,
+        overview: dash.overview,
+        executiveSummary,
+        recommendation: dash.heroAgents.recommendation,
+        cropPlan: dash.heroAgents.cropPlan,
+        disease: dash.heroAgents.disease,
+        nutrient: dash.heroAgents.nutrient,
+        spatial: dash.heroAgents.spatialTwin,
+        fieldBoundary: dash.heroAgents.fieldBoundary,
+        drone: dash.drone,
+        alerts: dash.alerts,
+        actionPlan,
+        disclaimer,
+        appendix,
+      },
+      trace,
+    };
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : 'Report Agent failed';
+    trace.push(`Step X ❌: ${msg}`);
+    return { success: false, error: msg, trace };
   }
 }

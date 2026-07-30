@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
 
       try {
         // Emit initial status
-        emit({ type: "thinking", message: "🧠 SuperFarmer AI is thinking..." });
+        emit({ type: "thinking", message: "🧠 AgroSentry AI is thinking..." });
 
         // Build farmer context
         const ctx = await buildContext(

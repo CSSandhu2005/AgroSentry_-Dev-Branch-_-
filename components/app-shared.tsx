@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { LayoutDashboardIcon, MousePointerClickIcon, FunnelIcon, RepeatIcon, GitBranchIcon, UsersIcon, ChartPieIcon, UserIcon, PlugIcon } from "lucide-react";
+import { LayoutDashboardIcon, UserIcon, SparklesIcon, CalendarIcon, ActivityIcon, ZapIcon, RefreshCwIcon, MapIcon, FileTextIcon, MessageSquareIcon } from "lucide-react";
 
 export type SidebarNavItem = {
 	title: string;
@@ -16,99 +16,71 @@ export type SidebarNavGroup = {
 
 export const navGroups: SidebarNavGroup[] = [
 	{
-		label: "Explore",
+		label: "Farm Management",
 		items: [
 			{
 				title: "Dashboard",
-				path: "/overview",
-				icon: (
-					<LayoutDashboardIcon
-					/>
-				),
+				path: "/dashboard",
+				icon: <LayoutDashboardIcon />,
 				isActive: true,
 			},
 			{
-				title: "Events",
-				path: "/events",
-				icon: (
-					<MousePointerClickIcon
-					/>
-				),
-			},
-			{
-				title: "Funnels",
-				path: "/funnels",
-				icon: (
-					<FunnelIcon
-					/>
-				),
-			},
-			{
-				title: "Retention",
-				path: "/retention",
-				icon: (
-					<RepeatIcon
-					/>
-				),
-			},
-			{
-				title: "Flows",
-				path: "/flows",
-				icon: (
-					<GitBranchIcon
-					/>
-				),
+				title: "Farmer Profile",
+				path: "/profile",
+				icon: <UserIcon />,
 			},
 		],
 	},
 	{
-		label: "Audiences",
+		label: "AI Intelligence",
 		items: [
 			{
-				title: "Segments",
-				path: "/segments",
-				icon: (
-					<UsersIcon
-					/>
-				),
+				title: "Crop Recommendation",
+				path: "/recommendation",
+				icon: <SparklesIcon />,
 			},
 			{
-				title: "Cohorts",
-				path: "/cohorts",
-				icon: (
-					<ChartPieIcon
-					/>
-				),
+				title: "Crop Plan",
+				path: "/plan",
+				icon: <CalendarIcon />,
 			},
 			{
-				title: "Profiles",
-				path: "/profiles",
-				icon: (
-					<UserIcon
-					/>
-				),
+				title: "Disease Diagnosis",
+				path: "/disease",
+				icon: <ActivityIcon />,
+			},
+			{
+				title: "Nutrient Risk",
+				path: "/nutrient",
+				icon: <ZapIcon />,
+			},
+			{
+				title: "Dynamic Replanner",
+				path: "/replanner",
+				icon: <RefreshCwIcon />,
 			},
 		],
 	},
 	{
-		label: "Configure",
+		label: "Precision & Reports",
 		items: [
 			{
-				title: "Integrations",
-				path: "/integrations",
-				icon: (
-					<PlugIcon
-					/>
-				),
+				title: "Spatial Twin",
+				path: "/spatial-planner",
+				icon: <MapIcon />,
+			},
+			{
+				title: "Advisory Reports",
+				path: "/reports",
+				icon: <FileTextIcon />,
+			},
+			{
+				title: "AI Chat Assistant",
+				path: "/agent-chat",
+				icon: <MessageSquareIcon />,
 			},
 		],
 	},
 ];
 
-export const navLinks: SidebarNavItem[] = [
-	...navGroups.flatMap((group) =>
-		group.items.flatMap((item) =>
-			item.subItems?.length ? [item, ...item.subItems] : [item]
-		)
-	),
-];
+export const navLinks: SidebarNavItem[] = navGroups.flatMap((g) => g.items);

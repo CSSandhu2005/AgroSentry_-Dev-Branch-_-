@@ -11,13 +11,15 @@ import {
 } from './Icons';
 
 const navLinks = [
-  { href: '/recommendation',  Icon: CropIcon,    label: 'Crops' },
-  { href: '/plan',            Icon: PlanIcon,    label: 'Plan' },
-  { href: '/disease',         Icon: DiseaseIcon, label: 'Disease' },
-  { href: '/spatial-planner', Icon: MapIcon,     label: 'Spatial' },
-  { href: '/agent-chat',      Icon: ChatIcon,    label: 'AI Chat' },
-  { href: '/report',          Icon: ReportIcon,  label: 'Report' },
-  { href: '/profile',         Icon: ProfileIcon, label: 'Profile' },
+  { href: '/dashboard', Icon: CropIcon, label: 'Dashboard' },
+  { href: '/recommendation', Icon: CropIcon, label: 'Crops' },
+  { href: '/plan', Icon: PlanIcon, label: 'Plan' },
+  { href: '/disease', Icon: DiseaseIcon, label: 'Disease' },
+  { href: '/nutrient', Icon: PlanIcon, label: 'Nutrient' },
+  { href: '/spatial-planner', Icon: MapIcon, label: 'Spatial' },
+  { href: '/agent-chat', Icon: ChatIcon, label: 'AI Chat' },
+  { href: '/reports', Icon: ReportIcon, label: 'Reports' },
+  { href: '/profile', Icon: ProfileIcon, label: 'Profile' },
 ];
 
 export default function Navbar() {
@@ -52,7 +54,7 @@ export default function Navbar() {
         {/* Logo */}
         <Link href="/" className={styles.logo}>
           <LeafIcon size={20} color="currentColor" />
-          <span>SuperFarmer</span>
+          <span>AgroSentry</span>
         </Link>
 
         {/* Desktop nav links — hidden on mobile */}
