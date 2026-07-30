@@ -102,15 +102,6 @@ export default function LeafletMapEngine({
           font-family: inherit;
           border-radius: 1rem;
         }
-        /* Push Leaflet controls below top floating GIS toolbar */
-        .leaflet-top.leaflet-left {
-          margin-top: 76px !important;
-          margin-left: 6px !important;
-        }
-        .leaflet-top.leaflet-right {
-          margin-top: 76px !important;
-          margin-right: 6px !important;
-        }
         .leaflet-draw-tooltip {
           white-space: nowrap !important;
           background: rgba(15, 23, 42, 0.95) !important;
@@ -403,7 +394,7 @@ export default function LeafletMapEngine({
       <div ref={mapContainerRef} className="w-full h-full block relative z-0" />
 
       {/* PHASE 3: PROFESSIONAL GIS FLOATING TOOLBAR */}
-      <div className="absolute top-3.5 left-3.5 right-3.5 z-[1000] p-2.5 rounded-2xl bg-background/95 backdrop-blur-md border border-white/10 shadow-2xl flex flex-wrap items-center justify-between gap-2 font-mono text-xs">
+      <div className="absolute top-3.5 left-[54px] right-14 z-[1000] p-2.5 rounded-2xl bg-background/95 backdrop-blur-md border border-white/10 shadow-2xl flex flex-wrap items-center justify-between gap-2 font-mono text-xs">
         <div className="flex items-center gap-1.5 flex-wrap">
           <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/40 font-bold px-2.5 py-1">
             🛰 GIS Mission Studio
