@@ -18,6 +18,7 @@ import {
   Leaf,
   BarChart3,
   Globe,
+  Plus,
 } from "lucide-react";
 import { MissionStatusCard } from "@/components/autonomous/widgets/MissionStatusCard";
 import { DroneTelemetryCard } from "@/components/autonomous/widgets/DroneTelemetryCard";
@@ -33,11 +34,11 @@ export default function AutonomousOperationsOverviewPage() {
       badge: "Flagship Studio",
     },
     {
-      title: "Mission Control",
+      title: "Mission Control Center",
       path: "/autonomous/mission-control",
       icon: <Activity className="w-5 h-5 text-emerald-500" />,
-      description: "NASA-style live execution command visualizer & real-time stage timeline.",
-      badge: "Hero View",
+      description: "NASA-style live execution command center, 7-stage autonomous mission pipeline, and observation queue.",
+      badge: "Command Center",
     },
     {
       title: "Mission Planner",
@@ -47,6 +48,13 @@ export default function AutonomousOperationsOverviewPage() {
       badge: "9 Templates",
     },
     {
+      title: "Disease Intelligence Agent",
+      path: "/autonomous/disease",
+      icon: <Sparkles className="w-5 h-5 text-purple-500" />,
+      description: "Phase 4 Disease Agent: 5 internal engines transforming observation queue into verified crop health findings.",
+      badge: "Phase 4 Agent",
+    },
+    {
       title: "Mission Queue",
       path: "/autonomous/mission-queue",
       icon: <Clock className="w-5 h-5 text-amber-500" />,
@@ -54,8 +62,8 @@ export default function AutonomousOperationsOverviewPage() {
       badge: "3 Active",
     },
     {
-      title: "Live Operations",
-      path: "/autonomous/live-operations",
+      title: "Live Operations & Telemetry",
+      path: "/autonomous/mission-control",
       icon: <Zap className="w-5 h-5 text-purple-500" />,
       description: "High-frequency GPS, RTK fix, speed, wind, and camera stream telemetry.",
       badge: "3D RTK",
@@ -72,7 +80,21 @@ export default function AutonomousOperationsOverviewPage() {
       path: "/autonomous/spray",
       icon: <ShieldCheck className="w-5 h-5 text-emerald-500" />,
       description: "Precision 5% spot spray execution contrasting 95% chemical reduction.",
-      badge: "5% vs 100%",
+      badge: "Phase 5 Commander",
+    },
+    {
+      title: "Verification Sentinel",
+      path: "/autonomous/verification",
+      icon: <ShieldCheck className="w-5 h-5 text-emerald-400" />,
+      description: "Phase 6 Sentinel: QA audit, 100% target validation, and +87% canopy recovery audit.",
+      badge: "Phase 6 QA",
+    },
+    {
+      title: "SDG Impact Showcase",
+      path: "/autonomous/sdg-impact",
+      icon: <Sparkles className="w-5 h-5 text-emerald-300" />,
+      description: "Phase 8 Showcase: Executive SDG 2, 6, 12, 13, 15 reports & 98/100 Mission Scorecard.",
+      badge: "Phase 8 Showcase",
     },
     {
       title: "Mission History",
@@ -131,9 +153,14 @@ export default function AutonomousOperationsOverviewPage() {
         </div>
 
         <div className="flex items-center gap-3">
+          <Link href="/autonomous/mission-queue">
+            <Button className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium shadow-sm text-xs">
+              <Plus className="w-4 h-4 mr-1.5" /> Create New Mission
+            </Button>
+          </Link>
           <Link href="/autonomous/mission-control">
-            <Button className="bg-emerald-600 hover:bg-emerald-700 text-white font-medium shadow-sm">
-              <Activity className="w-4 h-4 mr-2" /> Launch Mission Control
+            <Button variant="outline" className="font-medium shadow-sm text-xs">
+              <Activity className="w-4 h-4 mr-1.5" /> Launch Mission Control
             </Button>
           </Link>
         </div>

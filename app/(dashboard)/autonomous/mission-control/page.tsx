@@ -19,15 +19,15 @@ export default function MissionControlPage() {
       <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 p-5 rounded-2xl bg-card border shadow-sm">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <Badge className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20">
+            <Badge className="bg-emerald-500/10 text-emerald-400 border-emerald-500/30">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping mr-1.5" />
-              HERO MISSION CONTROL
+              MISSION CONTROL CENTER
             </Badge>
             <span className="text-xs font-mono text-muted-foreground">STATE: EXECUTING</span>
           </div>
-          <h1 className="text-2xl font-bold tracking-tight">MSN-2026-042: 5-Stage Autonomous Mission</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Mission Control Center — MSN-2026-042</h1>
           <p className="text-xs text-muted-foreground">
-            Target Parcel: <span className="font-medium text-foreground">Sector B — Cotton Parcel (5.5 Acres)</span> | Executor: <span className="font-medium text-emerald-500">Autonomous Drone #1 (RTK)</span>
+            Target Parcel: <span className="font-medium text-foreground">Sector B — Cotton Parcel (5.5 Acres)</span> | Command Link: <span className="font-medium text-emerald-400">High-Frequency 3D RTK</span>
           </p>
         </div>
 
@@ -48,9 +48,9 @@ export default function MissionControlPage() {
         </div>
       </div>
 
-      {/* Main 5-Stage Pipeline Canvas & Side Telemetry Grid */}
+      {/* Main 7-Stage Pipeline Canvas & Side Telemetry Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left 2 Columns: 5-Stage Shared Mission Canvas */}
+        {/* Left 2 Columns: 7-Stage Shared Mission Canvas */}
         <div className="lg:col-span-2 space-y-6">
           <UnifiedMissionPipelineCanvas />
         </div>
@@ -83,3 +83,4 @@ export default function MissionControlPage() {
     </div>
   );
 }
+

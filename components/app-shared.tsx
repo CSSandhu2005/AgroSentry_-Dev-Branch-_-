@@ -104,7 +104,7 @@ export const navGroups: SidebarNavGroup[] = [
     label: "Autonomous Mission Operations",
     items: [
       {
-        title: "Mission Control",
+        title: "Mission Control Center",
         path: "/autonomous/mission-control",
         icon: <ActivityIcon />,
       },
@@ -114,13 +114,18 @@ export const navGroups: SidebarNavGroup[] = [
         icon: <CalendarIcon />,
       },
       {
+        title: "Disease Intelligence",
+        path: "/autonomous/disease",
+        icon: <SparklesIcon />,
+      },
+      {
         title: "Mission Queue",
         path: "/autonomous/mission-queue",
         icon: <ClockIcon />,
       },
       {
-        title: "Live Operations",
-        path: "/autonomous/live-operations",
+        title: "Live Operations Center",
+        path: "/autonomous/mission-control",
         icon: <RadioIcon />,
       },
       {
@@ -132,6 +137,16 @@ export const navGroups: SidebarNavGroup[] = [
         title: "Targeted Spraying",
         path: "/autonomous/spray",
         icon: <ShieldCheckIcon />,
+      },
+      {
+        title: "Verification Sentinel",
+        path: "/autonomous/verification",
+        icon: <ShieldCheckIcon />,
+      },
+      {
+        title: "SDG Impact Showcase",
+        path: "/autonomous/sdg-impact",
+        icon: <SparklesIcon />,
       },
       {
         title: "Mission History",
